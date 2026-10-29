@@ -119,7 +119,9 @@ async function route(req:Request,env:Env):Promise<Response> {
     await rate(env,'export',s.token,20,3600);
     const {where,args}=filter(url),rows=(await env.DB.prepare(`SELECT * FROM entries WHERE ${where} ORDER BY created_at DESC LIMIT 301`).bind(...args).all()).results as Entry[];
     if(rows.length>300)fail(400,'한 번에 300건까지 저장할 수 있습니다. 검색으로 범위를 줄여 주세요.');
-    const pdf=path.endsWith('.pdf'),bytes=pdf?await exportPdf(rows):exportXlsx(rows);
+    const pdf=path.endsWith('.pdf');
+    if(pdf&&rows.reduce((sum,r)=>sum+[...r.review].length,0)>50000)fail(400,'PDF는 감상문 합계 50,000자까지 저장할 수 있습니다. 검색으로 범위를 줄여 주세요.');
+    const bytes=pdf?await exportPdf(rows):exportXlsx(rows);
     return new Response(bytes as any,{headers:{'Content-Type':pdf?'application/pdf':'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet','Content-Disposition':`attachment; filename="reading-journals.${pdf?'pdf':'xlsx'}"`}});
   }
   fail(404,'요청한 페이지를 찾지 못했습니다.');
