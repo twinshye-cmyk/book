@@ -115,9 +115,19 @@ async function route(req:Request,env:Env):Promise<Response> {
     else fail(400,'지원하지 않는 작업입니다.');
     if(!r.meta.changes)fail(404,'제출물을 찾지 못했습니다.');return json({ok:true});
   }
-  if((path==='/api/export.xlsx'||path==='/api/export.pdf')&&method==='GET') {
+  if((path==='/api/export.xlsx'||path==='/api/export.pdf')&&['GET','POST'].includes(method)) {
     await rate(env,'export',s.token,20,3600);
-    const {where,args}=filter(url),rows=(await env.DB.prepare(`SELECT * FROM entries WHERE ${where} ORDER BY created_at DESC LIMIT 301`).bind(...args).all()).results as Entry[];
+    const {where,args}=filter(url);
+    let selected:string[]|null=null;
+    if(method==='POST') {
+      const b=await body(req);
+      if(!Array.isArray(b.ids)||b.ids.length<1||b.ids.length>300)fail(400,'다운로드할 제출물을 1~300건 선택해 주세요.');
+      if(b.ids.some((id:any)=>typeof id!=='string'||!/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/.test(id)))fail(400,'선택한 제출물 번호가 올바르지 않습니다.');
+      selected=Array.from(new Set<string>(b.ids));
+    }
+    const selection=selected?` AND id IN (${selected.map(()=>'?').join(',')})`:'';
+    const rows=(await env.DB.prepare(`SELECT * FROM entries WHERE ${where}${selection} ORDER BY created_at DESC,id LIMIT 301`).bind(...args,...(selected||[])).all()).results as Entry[];
+    if(selected&&rows.length!==selected.length)fail(404,'선택한 제출물이 변경되었습니다. 목록을 새로 확인하고 선택해 주세요.');
     if(rows.length>300)fail(400,'한 번에 300건까지 저장할 수 있습니다. 검색으로 범위를 줄여 주세요.');
     const pdf=path.endsWith('.pdf');
     if(pdf&&rows.reduce((sum,r)=>sum+[...r.review].length,0)>50000)fail(400,'PDF는 감상문 합계 50,000자까지 저장할 수 있습니다. 검색으로 범위를 줄여 주세요.');
