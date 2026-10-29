@@ -20,7 +20,9 @@ export function exportXlsx(rows:Entry[]) {
 }
 export async function exportPdf(rows:Entry[]) {
   const doc=await PDFDocument.create();doc.registerFontkit(fontkit);
-  const bytes=Uint8Array.from(atob(fontBase64),c=>c.charCodeAt(0)),font=await doc.embedFont(bytes,{subset:true});
+  // Embed the complete static TrueType font. Variable-font subsetting loses
+  // Korean glyph outlines in common PDF readers even when text extraction works.
+  const bytes=Uint8Array.from(atob(fontBase64),c=>c.charCodeAt(0)),font=await doc.embedFont(bytes,{subset:false});
   doc.setTitle('우리 반 독서 기록장');doc.setCreator('우리 반 독서 기록장');
   const characters=new Set(font.getCharacterSet());
   let page=doc.addPage([595.28,841.89]),y=790;

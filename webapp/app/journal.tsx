@@ -43,7 +43,7 @@ export default function Journal({initialTeacher=false}:{initialTeacher?:boolean}
     a.href=url;a.download=`독후감_${label|| (ids?`선택_${ids.length}건`:new Date().toISOString().slice(0,10))}.${type}`.replace(/[\\/:*?"<>|\u0000-\u001f]/g,'_');
     document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),30000);setMessage(`${type.toUpperCase()} 파일 다운로드를 시작했습니다.`);
   });}
-  return <><header className="topbar"><a className="brand" href="/"><span className="brand-icon"><Book/></span><span>우리 반 독서 기록장<small>READ, THINK, GROW</small></span></a><span className="edition">책을 읽고, 생각을 키우는 우리</span><a className="teacher-link" href={initialTeacher?'/':'/teacher'}>{initialTeacher?'학생용으로 돌아가기':'교사용 관리 ↗'}</a></header>
+  return <><header className="topbar"><a className="brand" href="/"><span className="brand-icon"><Book/></span><span>우리 반 독서 기록장<small>READ, THINK, GROW</small></span></a><span className="edition">만든이 김근혜</span><a className="teacher-link" href={initialTeacher?'/':'/teacher'}>{initialTeacher?'학생용으로 돌아가기':'교사용 관리 ↗'}</a></header>
     <main className={initialTeacher?'shell teacher-shell':'shell'}>
       <section className="intro"><div className="eyebrow">{initialTeacher?'TEACHER’S ROOM':'OUR READING JOURNAL'}</div><h1>{initialTeacher?<>함께 읽은 책,<br/>함께 자라는 생각.</>:<>한 권의 책,<br/><em>나만의 생각.</em></>}</h1><p>{initialTeacher?'학생들이 남긴 생각을 한곳에서 살펴보세요.':'마지막 장을 덮은 뒤 떠오른 마음을 남겨 주세요.\n여러분의 생각이 우리 반의 책장이 됩니다.'}</p>{!initialTeacher&&<div className="quote"><span>“</span><p>같은 책을 읽어도<br/>우리가 발견하는 세상은 달라요.</p><div className="book-spines" aria-hidden="true"><i/><i/><i/><i/><i/></div></div>}</section>
       <section className="workspace">

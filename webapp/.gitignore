@@ -47,4 +47,6 @@ yarn-error.log*
 # Generated Korean font module; npm run prepare-font regenerates it
 /lib/korean-font.ts
 /assets/*.ttf
+!/assets/NotoSansKR-VF.ttf
+!/assets/NanumGothic-Regular.ttf
 !/.env.example
