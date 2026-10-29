@@ -1,0 +1,3 @@
+import { NextResponse } from 'next/server';
+export function middleware(){const response=NextResponse.next();response.headers.set('X-Frame-Options','DENY');response.headers.set('X-Content-Type-Options','nosniff');response.headers.set('Referrer-Policy','no-referrer');response.headers.set('Strict-Transport-Security','max-age=31536000; includeSubDomains');response.headers.set('Content-Security-Policy',"default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self'; font-src 'self' data:; object-src 'none'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'");return response;}
+export const config={matcher:['/:path*']};
